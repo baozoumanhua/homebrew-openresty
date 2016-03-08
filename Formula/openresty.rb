@@ -1,16 +1,11 @@
 require 'formula'
 
-class NgxOpenresty < Formula
+class Openresty < Formula
   homepage 'http://openresty.org/'
 
   stable do
-    url 'http://openresty.org/download/ngx_openresty-1.7.10.2.tar.gz'
-    sha1 '9b18a6ec7ce1f3f8bbd59bfe36e2160cc9554909'
-  end
-
-  devel do
-    url 'http://openresty.org/download/ngx_openresty-1.7.4.1rc2.tar.gz'
-    sha1 'ac87a3c40e1b459a9564ddd116cf6defb8cd25aa'
+    url 'https://openresty.org/download/openresty-1.9.7.3.tar.gz'
+    sha1 '1a2029e1c854b6ac788b4d734dd6b5c53a3987ff'
   end
 
   depends_on 'pcre'
@@ -33,6 +28,12 @@ class NgxOpenresty < Formula
   skip_clean 'logs'
 
   def install
+    pcre = Formula["pcre"]
+    openssl = Formula["openssl"]
+
+    cc_opt = "-I#{pcre.include} -I#{openssl.include}"
+    ld_opt = "-L#{pcre.lib} -L#{openssl.lib}"
+
     args = ["--prefix=#{prefix}",
       "--with-http_ssl_module",
       "--with-pcre",
@@ -40,7 +41,9 @@ class NgxOpenresty < Formula
       "--sbin-path=#{bin}/openresty",
       "--conf-path=#{etc}/openresty/nginx.conf",
       "--pid-path=#{var}/run/openresty.pid",
-      "--lock-path=#{var}/openresty/nginx.lock"
+      "--lock-path=#{var}/openresty/nginx.lock",
+      "--with-cc-opt=#{cc_opt}",
+      "--with-ld-opt=#{ld_opt}"
     ]
 
     args << "--with-http_dav_module" if build.with? 'webdav'
